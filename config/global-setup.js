@@ -14,8 +14,8 @@ module.exports = async () => {
   if (!fs.existsSync(authDir)) fs.mkdirSync(authDir, { recursive: true });
 
   const baseURL = process.env.BASE_URL || 'https://opensource-demo.orangehrmlive.com';
-  const username = process.env.ADMIN_USERNAME || 'Admin';
-  const password = process.env.ADMIN_PASSWORD || 'admin123';
+  const username = process.env.ADMIN_USERNAME ;
+  const password = process.env.ADMIN_PASSWORD ;
 
   const browser = await chromium.launch();
   const page = await browser.newPage({ baseURL });
