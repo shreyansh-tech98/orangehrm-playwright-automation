@@ -1,5 +1,5 @@
-import { test, expect } from '../../fixtures/testFixtures.js';
-import users from '../../test-data/users.json';
+import { test, expect } from '../../../fixtures/testFixtures.js';
+import users from '../../../test-data/users.json';
 
 test.describe('Verify the login features', async () => {
   test.beforeEach(async ({ loginPage }) => {

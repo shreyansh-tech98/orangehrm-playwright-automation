@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/testFixtures';
+import { test, expect } from '../../../fixtures/testFixtures';
 import { faker } from '@faker-js/faker';
 
 test.describe.serial('check the admin flow', async () => {

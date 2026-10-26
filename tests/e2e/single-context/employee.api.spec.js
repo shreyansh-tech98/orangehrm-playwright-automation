@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/apiFixtures.js';
+import { test, expect } from '../../../fixtures/apiFixtures.js';
 
 test.describe('Employee API', () => {
   

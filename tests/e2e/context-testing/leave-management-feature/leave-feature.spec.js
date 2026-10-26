@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/testFixtures.js';
+import { test, expect } from '../../../../fixtures/testFixtures.js';
 import { faker } from '@faker-js/faker';
 
 test.describe('Context Testing @contextTesting ', () => {
