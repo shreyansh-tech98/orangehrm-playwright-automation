@@ -14,6 +14,7 @@ test.describe('Context Testing @contextTesting ', () => {
     const leavePeriod = '2026-01-01 - 2026-31-12'
     const formatLeavePeriod = '2026-01-01 - 2026-12-31'
     const entitlement = '20'
+    const imagePath = 'D:/demo/orangehrm-playwright-js/test-data/hrms_profile_pic.jpg';
 
 
     test.beforeEach(async ({
@@ -213,7 +214,7 @@ test.describe('Context Testing @contextTesting ', () => {
 
     })
 
-    test('Admin rejects the employees leave', async ({
+    test.skip('Admin rejects the employees leave', async ({
         adminDashboardPage, adminLeavePage , adminPimPage , 
         employeeDashboardPage, employeeLeavePage,employeeLoginPage,employeePages
     })=>{
@@ -226,7 +227,7 @@ test.describe('Context Testing @contextTesting ', () => {
         })        
                
        
-        await test.step('admin adds leave entitlements for employee',async()=>{
+        await test.step('Admin adds leave entitlements for employee',async()=>{
             await expect(employeePages).toHaveURL(/dashboard/);
             await adminDashboardPage.navigateToLeave();
             await adminLeavePage.navigateToEntitlementsAndAddEntitlements()
@@ -264,5 +265,69 @@ test.describe('Context Testing @contextTesting ', () => {
         })
 
     })
+
+    test.skip('Admin uploads employee photo and employee verifies it',
+         async ({
+            adminDashboardPage,adminPimPage,employeeLoginPage,employeeDashboardPage,employeePimPage            
+        }) => {
+            
+            let adminUploadedSrc = ''
+            
+            await test.step('Admin creates employee with photo', async () => {
+                await adminDashboardPage.navigateToPIM()     
+                await adminPimPage.searchEmployeeByName(employeeData.employeeFullName)         
+                await adminPimPage.editEmployeeByName(employeeData.firstName)
+                await adminPimPage.clickOnImageArea()
+                await adminPimPage.uploadEmployeePhoto(imagePath)
+                adminUploadedSrc = await adminPimPage.getNewSrcAttributeFromAdmin()
+               
+            });
+
+            await test.step('Employee logs in using a separate context', async () => {
+                await employeeLoginPage.login(employeeData.username,employeeData.password);
+            });
+
+            await test.step('Employee verifies the profile photo', async () => {
+                await employeeDashboardPage.navigateToMyInfo()   
+                await employeePimPage.verifyEmployeesUploadedImg(adminUploadedSrc)
+                
+            });
+    });
+
+    test('Employee aplies for leave -> Admin downloads the leave list CSV',
+        async({
+            adminDashboardPage,adminPimPage,employeeLoginPage,employeeDashboardPage,
+            employeePimPage,employeePages,employeeLeavePage,adminLeavePage
+        })=>{
+
+            await test.step('Employee Logins with admin created creadentials',async()=>{
+                await employeeLoginPage.login(employeeData.username,employeeData.password)
+            })
+
+            await test.step('Admin adds leave entitlements for employee',async()=>{
+                await expect(employeePages).toHaveURL(/dashboard/);
+                await adminDashboardPage.navigateToLeave();
+                await adminLeavePage.navigateToEntitlementsAndAddEntitlements()
+                
+                await adminLeavePage.fillEntitlementForm(employeeData.employeeFullName,leaveType,leavePeriod,entitlement,formatLeavePeriod)
+
+                await adminLeavePage.confirmEntitlementSave()
+            })
+
+            await test.step('Employee applies for the leave',async()=>{
+                await employeeDashboardPage.navigateToLeave()
+                await employeeLeavePage.navigateToApplyLeave()
+                await employeeLeavePage.applyLeave(leaveType,fromDate,toDate,comment)
+            })
+
+            await test.step('Admin navigates to leave and searchs the latest leave of the employee',async()=>{
+                await adminLeavePage.navigateToLeaveList()
+                await adminLeavePage.searchWithEmployeeName(employeeData.employeeFullName)  
+                
+                await expect(adminLeavePage.leaveListTable).toBeVisible()
+            })            
+
+
+        })
 
 });

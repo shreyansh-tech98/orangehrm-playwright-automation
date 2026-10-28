@@ -60,6 +60,11 @@ export const test = base.extend({
 
         await use(pimPage);
     },
+    employeePimPage:async({employeePages},use)=>{
+      const pim = new PIMPage(employeePages)
+      await use(pim)
+    },
+
     adminLeavePage: async({adminPages},use)=>{
         const leavePage = new AdminLeavePage(adminPages);
         await use(leavePage);

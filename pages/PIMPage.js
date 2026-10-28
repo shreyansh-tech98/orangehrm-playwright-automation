@@ -8,6 +8,12 @@ export class PIMPage extends BasePage {
     this.topNavigation = page.getByLabel('Topbar Menu');
     this.addEmployeeButton = this.topNavigation.getByRole('link', { name: 'Add Employee' });
 
+    this.imageEditForm = page.locator('.oxd-form-row img') 
+    this.imageContainer = page.locator('.orangehrm-card-container img')   
+    this.fileUpload = page.locator('input[type="file"]')
+    this.impageArea = page.locator('.employee-image')
+    
+
     this.firstNameInput = page.getByPlaceholder('First Name');
     this.middleNameInput = page.getByPlaceholder('Middle Name');
     this.lastNameInput = page.getByPlaceholder('Last Name');
@@ -30,7 +36,8 @@ export class PIMPage extends BasePage {
     this.searchDropdown = page.locator('.oxd-input-group').getByRole('listbox').getByRole('option');
     this.searchButton = this.tablefilter.getByRole('button', { name: 'Search' });
     this.employeeTable = page.getByRole('table');
-    this.employeeTableRows = this.employeeTable.getByRole('row');
+    this.employeeTableRows = this.employeeTable.locator('.oxd-table-card');
+    this.employeeTableCells = this.employeeTableRows.getByRole('cell')
     this.trashIcon = this.employeeTableRows.getByRole('cell').locator('.bi-trash');
     
     this.loginDetailToggle =  page.locator('.oxd-switch-input');
@@ -44,11 +51,44 @@ export class PIMPage extends BasePage {
     this.cancelDeleteButton = page.getByRole('button', { name: 'No, Cancel' });
     this.noRecordsFoundMessage = page.getByText('No Records Found');
   }
+  
+  
 
   async clickAddEmployee() {
     await this.addEmployeeButton.click();
     await expect(this.page).toHaveURL(/addEmployee/);
     await expect(this.firstNameInput).toBeVisible();
+  }
+  
+  async uploadEmployeePhoto(pic){
+    const srcAtrbt = await this.imageEditForm.getAttribute('src') 
+
+    await this.fileUpload.setInputFiles(pic)     
+
+    await expect(this.imageEditForm).not.toHaveAttribute('src',srcAtrbt)
+
+    const savebuttons = await this.saveButton.count()
+
+    if(savebuttons>1)
+      await this.saveButton.last().click();
+    else 
+      await this.saveButton.last().click();
+    
+  }
+
+  async getNewSrcAttributeFromAdmin(){
+    const src = await this.imageEditForm.getAttribute('src') 
+
+    return src
+  }
+
+  async verifyEmployeesUploadedImg(adminUploadedSrc){
+    // console.log(`Admin Src = ${adminUploadedSrc} and employee src = ${await this.imageContainer.getAttribute('src')}`)
+    expect(adminUploadedSrc).toMatch(/^data:image\//);
+    await expect(this.imageContainer).toBeVisible();
+    await expect.poll(
+      () => this.imageContainer.evaluate((image) => image.complete && image.naturalWidth > 0)
+    ).toBe(true);
   }
 
   async addEmployee(firstName, middleName, lastName, employeeId) {
@@ -100,6 +140,21 @@ export class PIMPage extends BasePage {
     await this.confirmDeleteButton.click();
 
     await expect(this.successToast).toBeVisible();
+  }
+
+  async clickOnImageArea(){
+    await expect(this.impageArea).toBeVisible()
+    await this.impageArea.click()
+
+  }
+
+  async editEmployeeByName(employeeName) {    
+
+    const empRow = await this.employeeTableRows.filter({ hasText: employeeName })
+    await expect(empRow).toBeVisible()
+    await empRow.locator('.bi-pencil-fill').click(); 
+    await expect(this.page).toHaveURL(/viewPersonalDetails/) 
+    
   }
 
   async isNoRecordsFoundMessageVisible() {

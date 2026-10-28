@@ -50,7 +50,7 @@ export class EmployeeDashboardPage extends BasePage {
 
   async navigateToMyInfo() {
     await this.myInfoMenu.click();
-    await expect(this.page).toHaveURL(/myinfo/);
+    await expect(this.page).toHaveURL(/viewPersonalDetails/);
   }
 
   async getLoggedInUsername() {
